@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_parser.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'src/_connect_api.dart'
@@ -40,11 +41,11 @@ class StompHandler {
   bool get connected => _connected;
 
   void start() {
-    platform.connect(config).then((webSocketChannel) {
-      channel = webSocketChannel
-        ..stream.listen(_onData, onError: _onError, onDone: _onDone);
-      _connectToStomp();
-    }).catchError((_) => _onDone());
+    final webSocketChannel = IOWebSocketChannel.connect(
+        config.url, headers: config.webSocketConnectHeaders);
+    channel = webSocketChannel
+      ..stream.listen(_onData, onError: _onError, onDone: _onDone);
+    _connectToStomp();
   }
 
   void dispose() {
